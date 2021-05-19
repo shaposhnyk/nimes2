@@ -5,6 +5,7 @@ import com.sh.Direction;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public record Frontier<T>(T element, Set<Direction> directions) {
   public Frontier(T ch, Direction... directions) {
@@ -29,6 +30,10 @@ public record Frontier<T>(T element, Set<Direction> directions) {
 
   public Frontier<T> withFirstSide() {
     return new Frontier<>(element, firstSide());
+  }
+
+  public Stream<Frontier<T>> asUnitaryFrontiers() {
+    return directions().stream().map(d -> new Frontier<>(element, d));
   }
 
   public Direction firstSide() {

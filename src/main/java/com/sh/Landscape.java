@@ -13,7 +13,7 @@ public interface Landscape<T> {
 
   @NotNull Direction opposide(Direction dir);
 
-  @NotNull List<Point> frontierPoints();
+  @NotNull List<Point> frontier();
 
   @NotNull List<T> field();
 

@@ -1,12 +1,11 @@
 package com.sh.impl;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 public class GNode<T> {
-  final T value;
-  final Set<GNode<T>> nodes = new HashSet<>(2);
+  private final T value;
+  private final Set<GNode<T>> nodes = new HashSet<>(2);
 
   public GNode(T value) {
     this.value = value;
@@ -16,21 +15,8 @@ public class GNode<T> {
     return value;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    GNode<?> gNode = (GNode<?>) o;
-    return value.equals(gNode.value);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(value);
+  public Set<GNode<T>> nodes() {
+    return nodes;
   }
 
   @Override

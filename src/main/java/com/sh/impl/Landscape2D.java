@@ -6,6 +6,7 @@ import com.sh.Point;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Landscape2D<T> implements Landscape<T> {
   public enum Direction2D implements Direction {
@@ -32,16 +33,22 @@ public class Landscape2D<T> implements Landscape<T> {
   private final Map<T, Point> elementPositions = new HashMap<>();
   private final Map<Point, Frontier<T>> frontierMap = new LinkedHashMap<>();
 
-  public List<Frontier<T>> frontier() {
-    List<Frontier<T>> sb = new ArrayList<>();
+  public List<Frontier<T>> frontierSides() {
+    List<Frontier<T>> sb = new ArrayList<>(frontierMap.size());
     Map.Entry<Point, Frontier<T>> startE = frontierMap.entrySet().iterator().next();
-    PointFrontier<T> start = new PointFrontier<>(startE.getKey(), startE.getValue().withFirstSide());
+    Set<PointFrontier<T>> toVisit = frontierMap.entrySet().stream()
+        .flatMap(f -> f.getValue().asUnitaryFrontiers().map(ff -> new PointFrontier<>(f.getKey(), ff)))
+        .collect(Collectors.toSet());
 
-    sb.add(start.f);
-    PointFrontier<T> curr = nextFrontierPoint(start);
-    while (!start.equals(curr)) {
+    PointFrontier<T> curr = new PointFrontier<>(startE.getKey(), startE.getValue().withFirstSide());
+
+    while (curr != null) {
       sb.add(curr.f);
+      toVisit.remove(curr);
       curr = nextFrontierPoint(curr);
+      if (!toVisit.contains(curr)) {
+        curr = toVisit.isEmpty() ? null : toVisit.iterator().next();
+      }
     }
     return sb;
   }
@@ -71,8 +78,12 @@ public class Landscape2D<T> implements Landscape<T> {
     throw new IllegalArgumentException("Frontier does not exist for: " + Arrays.toString(candidates));
   }
 
-  private PointFrontier<T> pf(int x, int y, Direction2D s) {
-    return new PointFrontier<>(p(x, y), new Frontier<>(null, s));
+  private PointFrontier<T> pf(Point p, Direction s) {
+    return new PointFrontier<>(p, new Frontier<>(null, s));
+  }
+
+  private PointFrontier<T> pf(int x, int y, Direction s) {
+    return pf(p(x, y), s);
   }
 
   @Override
@@ -136,16 +147,20 @@ public class Landscape2D<T> implements Landscape<T> {
   }
 
   @Override
-  public @NotNull List<Point> frontierPoints() {
-    return List.of();
+  public @NotNull List<Point> frontier() {
+    return frontierSides().stream()
+        .map(f -> elementPositions.get(f.element()).plus(DIR_MAP.get(f.firstSide())))
+        .distinct()
+        .collect(Collectors.toUnmodifiableList());
   }
 
   @Override
   public @NotNull List<T> field() {
-    return null;
+    return map.values().stream()
+        .collect(Collectors.toUnmodifiableList());
   }
 
-  static Point p(int x, int y) {
+  public static Point p(int x, int y) {
     return new Point(x, y);
   }
 

@@ -10,7 +10,7 @@ import static java.util.stream.Collectors.toList;
 public class GameImpl implements Game {
   final TileGenerator generator;
   final Landscape<List<GNode<TileRoadSegment>>> landscape;
-  final RoadVisitor roadVisitor = new RoadVisitor();
+  final RoadVisitor<TileRoadSegment> roadVisitor = new RoadVisitor<>(null, null);
 
   public GameImpl(TileGenerator generator, Landscape<List<GNode<TileRoadSegment>>> landscape) {
     this.generator = generator;
@@ -34,7 +34,7 @@ public class GameImpl implements Game {
 
   @Override
   public List<Point> frontier() {
-    return landscape.frontierPoints();
+    return landscape.frontier();
   }
 
   @Override
@@ -51,7 +51,7 @@ public class GameImpl implements Game {
     }
 
     for (GNode<TileRoadSegment> gnode : gNodes) {
-      roadVisitor.visit(this, gnode);
+      roadVisitor.visitRoadFrom(gnode);
     }
   }
 
