@@ -87,20 +87,20 @@ public class Landscape2D<T> implements Landscape<T> {
   }
 
   @Override
-  public T get(Point p) {
+  public T get(@NotNull Point p) {
     return map.get(p);
   }
 
   @Override
-  public void add(Point p, T ch) {
+  public void add(@NotNull Point p, @NotNull T element) {
     if (map.containsKey(p)) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Point " + p + " is already occupied by: " + map.get(p));
     }
 
     if (frontierMap.isEmpty()) {
-      frontierMap.put(p, new Frontier<>(ch, DIRS));
+      frontierMap.put(p, new Frontier<>(element, DIRS));
     } else {
-      var newFront = new Frontier<>(ch, DIRS);
+      var newFront = new Frontier<>(element, DIRS);
       for (int i = 0; i < DIR_POINTS.length; i++) {
         Point n = DIR_POINTS[i].plus(p);
         var frontier = frontierMap.get(n);
@@ -119,8 +119,8 @@ public class Landscape2D<T> implements Landscape<T> {
       }
     }
 
-    map.put(p, ch);
-    elementPositions.put(ch, p);
+    map.put(p, element);
+    elementPositions.put(element, p);
   }
 
   public void addInDirectionOf(T existingElement, Direction dir, T newElement) {
@@ -142,7 +142,7 @@ public class Landscape2D<T> implements Landscape<T> {
   }
 
   @Override
-  public Direction opposide(Direction dir) {
+  public @NotNull Direction opposite(@NotNull Direction dir) {
     return OPPOSITE_MAP.get(dir);
   }
 
@@ -155,7 +155,7 @@ public class Landscape2D<T> implements Landscape<T> {
   }
 
   @Override
-  public @NotNull List<T> field() {
+  public @NotNull List<T> elements() {
     return map.values().stream()
         .collect(Collectors.toUnmodifiableList());
   }

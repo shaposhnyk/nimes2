@@ -1,6 +1,7 @@
 package com.sh.impl;
 
 import com.sh.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -18,22 +19,22 @@ public class GameImpl implements Game {
   }
 
   @Override
-  public TileNode generate() {
+  public @NotNull TileNode generate() {
     return generator.generate();
   }
 
   @Override
-  public TileNode rotate(TileNode tileNode, int times) {
+  public @NotNull TileNode rotate(TileNode tileNode, int times) {
     return generator.rotate(tileNode, times);
   }
 
   @Override
-  public List<TileNode> field() {
+  public @NotNull List<TileNode> field() {
     return null;
   }
 
   @Override
-  public List<Point> frontier() {
+  public @NotNull List<Point> frontier() {
     return landscape.frontier();
   }
 
@@ -78,7 +79,7 @@ public class GameImpl implements Game {
     for (GNode<TileRoadSegment> node : landscape.get(p)) {
       if (node.value().segment().isPassBy(pSide)) {
         for (GNode<TileRoadSegment> neighborNode : landscape.get(n)) {
-          Direction nSide = landscape.opposide(pSide);
+          Direction nSide = landscape.opposite(pSide);
           if (neighborNode.value().segment().isPassBy(nSide)) {
             node.addMutually(neighborNode);
           }
