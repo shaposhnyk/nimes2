@@ -1,5 +1,5 @@
 package com.sh;
 
-public interface SegmentColor {
+public interface Player {
   String name();
 }

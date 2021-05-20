@@ -14,7 +14,7 @@ public class RoadVisitor<T> {
     this.isCity = Objects.requireNonNull(isCity);
   }
 
-  public void visitRoadFrom(GNode<T> curr) {
+  public void visitRoadsFrom(GNode<T> curr) {
     if (isCity(curr)) {
       visited.add(curr);
       for (GNode<T> next : curr.nodes()) {

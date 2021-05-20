@@ -3,19 +3,31 @@ package com.sh.impl;
 import com.sh.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
-public class GameImpl implements Game {
-  final TileGenerator generator;
-  final Landscape<List<GNode<TileRoadSegment>>> landscape;
-  final RoadVisitor<TileRoadSegment> roadVisitor = new RoadVisitor<>(null, null);
+public class GameEngineImpl implements GameEngine {
+  private final TileGenerator generator;
+  private final Landscape<List<GNode<TileRoadSegment>>> landscape;
+  private final RoadVisitor<TileRoadSegment> roadVisitor = new RoadVisitor<>(this::closeRoadSegment, this::isCity);
+  private final Map<Point, TileNode> tiles;
+  private final Map<Player, PlayerStatsImpl> playerStats;
 
-  public GameImpl(TileGenerator generator, Landscape<List<GNode<TileRoadSegment>>> landscape) {
+  public GameEngineImpl(
+      TileGenerator generator,
+      Landscape<List<GNode<TileRoadSegment>>> landscape,
+      List<Player> players
+  ) {
     this.generator = generator;
     this.landscape = landscape;
+    this.tiles = new HashMap<>();
+    this.playerStats = players.stream().collect(toMap(Function.identity(), p -> new PlayerStatsImpl()));
   }
 
   @Override
@@ -30,18 +42,20 @@ public class GameImpl implements Game {
 
   @Override
   public @NotNull List<TileNode> field() {
-    return null;
+    return tiles.values().stream()
+        .collect(Collectors.toUnmodifiableList());
   }
 
   @Override
-  public @NotNull List<Point> frontier() {
+  public @NotNull List<Point> availableMoves() {
     return landscape.frontier();
   }
 
   @Override
   public void putTile(Point p, TileNode newTile) {
-    var gNodes = createGraphNodes(newTile);
-    landscape.add(p, gNodes);
+    tiles.put(p, newTile);
+    var newNodes = createGraphNodes(newTile);
+    landscape.add(p, newNodes);
 
     // connect new nodes
     for (Map.Entry<Direction, Point> dir : landscape.sides().entrySet()) {
@@ -51,13 +65,20 @@ public class GameImpl implements Game {
       }
     }
 
-    for (GNode<TileRoadSegment> gnode : gNodes) {
-      roadVisitor.visitRoadFrom(gnode);
-    }
+    newNodes.forEach(roadVisitor::visitRoadsFrom);
   }
 
-  public void count(GraphRoad<RoadSegment> road) {
+  @Override
+  public Map<Player, PlayerStats> stats() {
+    return playerStats.entrySet().stream()
+        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
 
+  public void closeRoadSegment(TileRoadSegment closedSegment) {
+    Player socket = closedSegment.segment().socket();
+    if (socket != null) {
+      playerStats.get(socket).count();
+    }
   }
 
   private boolean isCity(TileRoadSegment tileSegment) {

@@ -118,8 +118,26 @@ public class RoadVisitorTest {
     c.addMutually(d);
     d.addMutually(a);
 
-    assertThat(visitRoad(a)).containsExactly("A", "B", "C", "D");
-    assertThat(visitRoad(b)).containsExactly("B", "C", "D", "A");
+    assertThat(visitRoad(a)).containsOnly("A", "B", "C", "D");
+    assertThat(visitRoad(b)).containsOnly("B", "C", "D", "A");
+    assertThat(visitRoad(c)).containsOnly("C", "D", "A", "B");
+    assertThat(visitRoad(d)).containsOnly("D", "A", "B", "C");
+  }
+
+  @Test
+  public void testCircleWithCity() {
+    GNode<String> a = nodeOf("A");
+    GNode<String> b = nodeOf("B");
+    GNode<String> c = nodeOf("C");
+    GNode<String> d = nodeOf("Z");
+
+    a.addMutually(b);
+    b.addMutually(c);
+    c.addMutually(d);
+    d.addMutually(a);
+
+    assertThat(visitRoad(a)).containsOnly("A", "B", "C", "D");
+    assertThat(visitRoad(b)).containsOnly("B", "C", "D", "A");
     assertThat(visitRoad(c)).containsOnly("C", "D", "A", "B");
     assertThat(visitRoad(d)).containsOnly("D", "A", "B", "C");
   }
@@ -148,7 +166,7 @@ public class RoadVisitorTest {
   private List<String> visitRoad(GNode<String> root) {
     final List<String> list = new ArrayList<>();
     final RoadVisitor<String> visitor = new RoadVisitor<>(list::add, s -> s.startsWith("Z"));
-    visitor.visitRoadFrom(root);
+    visitor.visitRoadsFrom(root);
     return list;
   }
 

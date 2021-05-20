@@ -1,16 +1,23 @@
 package com.sh;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
- * Segment of the road on a tyle
+ * Segment of the road on a tile
  */
 public interface RoadSegment {
-  SegmentType type();
+  /**
+   * @return segement type, i.e. City, Field, etc
+   */
+  @NotNull SegmentType type();
 
-  SegmentColor color();
+  /**
+   * @return player ID or null if there is no player's place
+   */
+  Player socket();
 
-  Direction sideA();
-
-  Direction sideB();
-
+  /**
+   * @return true if this road segment passes by a given tile side
+   */
   boolean isPassBy(Direction side);
 }

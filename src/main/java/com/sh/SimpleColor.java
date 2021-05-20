@@ -1,5 +1,5 @@
 package com.sh;
 
-public enum SimpleColor implements SegmentColor {
+public enum SimpleColor implements Player {
   BLUE, GREEN, RED, YELLOW
 }

@@ -9,9 +9,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Landscape2D<T> implements Landscape<T> {
-  public enum Direction2D implements Direction {
-    N, E, S, W
-  }
 
   private static final Direction[] DIRS = new Direction2D[]{Direction2D.N, Direction2D.E, Direction2D.S, Direction2D.W};
   private static final Direction[] OPPOSITE_DIRS = new Direction2D[]{Direction2D.S, Direction2D.W, Direction2D.N, Direction2D.E};
@@ -34,28 +31,29 @@ public class Landscape2D<T> implements Landscape<T> {
   private final Map<Point, Frontier<T>> frontierMap = new LinkedHashMap<>();
 
   public List<Frontier<T>> frontierSides() {
-    List<Frontier<T>> sb = new ArrayList<>(frontierMap.size());
-    Map.Entry<Point, Frontier<T>> startE = frontierMap.entrySet().iterator().next();
-    Set<PointFrontier<T>> toVisit = frontierMap.entrySet().stream()
+    final Set<PointFrontier<T>> toVisit = frontierMap.entrySet().stream()
         .flatMap(f -> f.getValue().asUnitaryFrontiers().map(ff -> new PointFrontier<>(f.getKey(), ff)))
         .collect(Collectors.toSet());
 
-    PointFrontier<T> curr = new PointFrontier<>(startE.getKey(), startE.getValue().withFirstSide());
+    var curr = frontierMap.entrySet().stream()
+        .map(startE -> new PointFrontier<>(startE.getKey(), startE.getValue().withFirstSide()))
+        .findFirst().orElseThrow();
 
+    final List<Frontier<T>> res = new ArrayList<>(frontierMap.size());
     while (curr != null) {
-      sb.add(curr.f);
+      res.add(curr.f);
       toVisit.remove(curr);
       curr = nextFrontierPoint(curr);
       if (!toVisit.contains(curr)) {
         curr = toVisit.isEmpty() ? null : toVisit.iterator().next();
       }
     }
-    return sb;
+    return res;
   }
 
   private PointFrontier<T> nextFrontierPoint(PointFrontier<T> start) {
     Direction direction = start.f.firstSide();
-    if (!(direction instanceof Landscape2D.Direction2D)) {
+    if (!(direction instanceof Direction2D)) {
       throw new IllegalArgumentException("Unknown side: " + start.f.firstSide());
     }
 
