@@ -1,13 +1,19 @@
 package com.sh.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class RoadVisitor<T> {
+  private static final Logger logger = LoggerFactory.getLogger(RoadVisitor.class);
   private final Consumer<T> finishedRoadVisitor;
   private final Predicate<T> isCity;
-  private final HashSet<GNode<T>> visited = new HashSet<>();
+  private final Set<GNode<T>> visited = new HashSet<>();
+  private final Set<GNode<T>> marked = new HashSet<>();
+  private List<List<GNode<T>>> cityPaths = new ArrayList<>();
 
   RoadVisitor(Consumer<T> finishedRoadVisitor, Predicate<T> isCity) {
     this.finishedRoadVisitor = Objects.requireNonNull(finishedRoadVisitor);
@@ -15,88 +21,52 @@ public class RoadVisitor<T> {
   }
 
   public void visitRoadsFrom(GNode<T> curr) {
-    if (isCity(curr)) {
-      visited.add(curr);
-      for (GNode<T> next : curr.nodes()) {
-        visitRoadFromCity(newRoad(), curr, next);
-      }
-    } else {
-      visitRoadFromNonCity(newRoad(), null, curr);
+    visit(List.of(), curr);
+    if (isCity(curr) || cityPaths.size() > 1) {
+      cityPaths.stream().flatMap(Collection::stream).forEach(this::markOnRoad);
     }
   }
 
-  private List<GNode<T>> visitRoadFromNonCity(Collection<GNode<T>> path, GNode<T> prev, GNode<T> curr) {
-    if (isCity(curr)) {
-      visited.add(curr);
-      return List.of(curr);
-    } else if (isVisited(curr)) {
-      if (!path.isEmpty() && path.iterator().next().equals(curr)) {
-        ArrayList<GNode<T>> result = new ArrayList<>(path);
-        if (prev != null) {
-          result.add(prev);
-        }
-        result.forEach(this::finishedRoad);
-        return result;
+  private void visit(List<GNode<T>> path, GNode<T> curr) {
+    logger.info("visiting: {} from {}", curr, path);
+    if (visited.contains(curr)) {
+      int idx = path.indexOf(curr);
+      if (idx >= 0 && idx < path.size() - 1) {
+        path.subList(idx, path.size())
+            .forEach(this::markOnRoad);
       }
-      return List.of();
-    }
-    visited.add(curr);
-    if (prev != null) {
-      path.add(prev);
-    }
-
-    int roadCount = 0;
-    List<GNode<T>> cityRoads = new ArrayList<>();
-    for (GNode<T> next : curr.nodes()) {
-      if (next.equals(prev)) {
-        continue;
-      }
-      List<GNode<T>> road = visitRoadFromNonCity(path, curr, next);
-      cityRoads.addAll(road);
-      roadCount += road.isEmpty() ? 0 : 1;
-    }
-    if (roadCount > 1) {
-      finishedRoad(curr);
-      cityRoads.forEach(this::finishedRoad);
-      return List.of(curr);
-    }
-    return List.of();
-  }
-
-  private void finishedRoad(GNode<T> curr) {
-    finishedRoadVisitor.accept(curr.value());
-  }
-
-  private void visitRoadFromCity(Collection<GNode<T>> path, GNode<T> prev, GNode<T> curr) {
-    if (isCity(curr)) {
-      if (!path.contains(prev)) {
-        finishedRoad(prev);
-      }
-      if (!path.contains(curr)) {
-        finishedRoad(curr);
-      }
-      path.forEach(this::finishedRoad);
       return;
-    } else if (isVisited(curr)) {
+    } else if (isCity(curr) && !path.isEmpty()) {
+      cityPaths.add(listOf(path, curr));
       return;
     }
-    visited.add(curr);
-    path.add(prev);
+    visitNeighbors(path, curr);
+  }
 
-    for (GNode<T> next : curr.nodes()) {
-      if (next.equals(prev)) {
-        continue;
+  private void visitNeighbors(List<GNode<T>> path, GNode<T> curr) {
+    List<GNode<T>> newPath = listOf(path, curr);
+    visited.add(curr);
+    GNode<T> prev = path.isEmpty() ? null : path.get(path.size() - 1);
+    for (GNode<T> node : curr.nodes()) {
+      if (!node.equals(prev)) {
+        visit(newPath, node);
       }
-      visitRoadFromCity(path, curr, next);
     }
   }
 
-  private boolean isVisited(GNode<T> node) {
-    return visited.contains(node);
+  private List<GNode<T>> listOf(List<GNode<T>> path, GNode<T> curr) {
+    ArrayList<GNode<T>> newPath = new ArrayList<>(path.size() + 1);
+    newPath.addAll(path);
+    newPath.add(curr);
+    return newPath;
   }
 
-  private Collection<GNode<T>> newRoad() {
-    return new LinkedHashSet<>(List.of());
+  private void markOnRoad(GNode<T> curr) {
+    logger.info("finishing road: {}", curr);
+    if (!marked.contains(curr)) {
+      marked.add(curr);
+      finishedRoadVisitor.accept(curr.value());
+    }
   }
 
   public boolean isCity(GNode<T> node) {
