@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface RoadSegment {
   /**
-   * @return segement type, i.e. City, Field, etc
+   * @return segment type, i.e. City, Field, etc
    */
   @NotNull SegmentType type();
 

@@ -38,7 +38,7 @@ public class GameEngineImpl implements GameEngine {
   }
 
   @Override
-  public @NotNull TileNode rotate(TileNode tileNode, int times) {
+  public @NotNull TileNode rotate(@NotNull TileNode tileNode, int times) {
     return generator.rotate(tileNode, times);
   }
 
@@ -54,7 +54,7 @@ public class GameEngineImpl implements GameEngine {
   }
 
   @Override
-  public void putTile(Point p, TileNode newTile) {
+  public void putTile(@NotNull Point p, @NotNull TileNode newTile) {
     var newNodes = addTile(p, newTile);
     var roadVisitor = new RoadVisitor<>(this::closeRoadSegment, this::isCity);
     newNodes.forEach(roadVisitor::visitRoadsFrom);
@@ -110,7 +110,7 @@ public class GameEngineImpl implements GameEngine {
       if (!node.value().segment().isPassBy(pSide)) {
         continue;
       }
-      
+
       for (GNode<TileRoadSegment> neighborNode : landscape.get(n)) {
         Direction nSide = landscape.opposite(pSide);
         if (neighborNode.value().segment().isPassBy(nSide)) {

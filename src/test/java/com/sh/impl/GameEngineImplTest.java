@@ -1,7 +1,6 @@
 package com.sh.impl;
 
 import com.sh.*;
-import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.util.List;
@@ -10,12 +9,12 @@ import static com.sh.impl.Direction2D.*;
 import static com.sh.impl.Landscape2D.p;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GameEngineImplTest extends TestCase {
+public class GameEngineImplTest {
   static final Player R = new ColorPlayer("RED");
   static final Player B = new ColorPlayer("BLUE");
-  final TileGenerator generator = null;
+
   final Landscape<List<GNode<TileRoadSegment>>> landscape = new Landscape2D<>();
-  final GameEngineImpl ge = new GameEngineImpl(generator, landscape, List.of(R, B));
+  final GameEngineImpl ge = new GameEngineImpl(null, landscape, List.of(R, B));
 
   @Test
   public void testLoopAdd() {

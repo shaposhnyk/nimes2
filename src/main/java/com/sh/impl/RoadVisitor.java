@@ -14,7 +14,7 @@ public class RoadVisitor<T> {
 
   private final Set<GNode<T>> visited = new HashSet<>();
   private final Set<GNode<T>> marked = new HashSet<>();
-  private List<List<GNode<T>>> cityPaths = new ArrayList<>();
+  private final List<List<GNode<T>>> cityPaths = new ArrayList<>();
 
   RoadVisitor(Consumer<T> finishedRoadVisitor, Predicate<T> isCity) {
     this.isCity = Objects.requireNonNull(isCity);
