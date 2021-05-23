@@ -16,30 +16,17 @@ import static java.util.stream.Collectors.toMap;
 
 public class GameEngineImpl implements GameEngine {
   private static final Logger logger = LoggerFactory.getLogger(GameEngineImpl.class);
-  private final TileGenerator generator;
   private final Landscape<List<GNode<TileRoadSegment>>> landscape;
   private final Map<Point, TileNode> tiles;
   private final Map<Player, PlayerStatsImpl> playerStats;
 
   public GameEngineImpl(
-      TileGenerator generator,
       Landscape<List<GNode<TileRoadSegment>>> landscape,
       List<Player> players
   ) {
-    this.generator = generator;
     this.landscape = landscape;
     this.tiles = new HashMap<>();
     this.playerStats = players.stream().collect(toMap(Function.identity(), p -> new PlayerStatsImpl()));
-  }
-
-  @Override
-  public @NotNull TileNode generate() {
-    return generator.generate();
-  }
-
-  @Override
-  public @NotNull TileNode rotate(@NotNull TileNode tileNode, int times) {
-    return generator.rotate(tileNode, times);
   }
 
   @Override
@@ -55,6 +42,9 @@ public class GameEngineImpl implements GameEngine {
 
   @Override
   public void putTile(@NotNull Point p, @NotNull TileNode newTile) {
+    if (!tiles.isEmpty() && !availableMoves().contains(p)) {
+      throw new IllegalArgumentException("Point should be among available moves");
+    }
     var newNodes = addTile(p, newTile);
     var roadVisitor = new RoadVisitor<>(this::closeRoadSegment, this::isCity);
     newNodes.forEach(roadVisitor::visitRoadsFrom);
@@ -123,7 +113,8 @@ public class GameEngineImpl implements GameEngine {
   @Override
   public String toString() {
     return "GameEngineImpl{" +
-        "landscape=" + landscape +
+        "players=" + playerStats.keySet() +
+        ", landscape=" + landscape +
         '}';
   }
 }

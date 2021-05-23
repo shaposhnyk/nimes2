@@ -5,4 +5,6 @@ package com.sh;
  */
 public interface Direction {
   String name();
+
+  Direction rotate(int times);
 }

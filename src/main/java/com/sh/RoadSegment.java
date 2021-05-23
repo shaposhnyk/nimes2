@@ -20,4 +20,6 @@ public interface RoadSegment {
    * @return true if this road segment passes by a given tile side
    */
   boolean isPassBy(Direction side);
+
+  @NotNull RoadSegment rotate(int times);
 }

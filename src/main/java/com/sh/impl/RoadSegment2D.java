@@ -4,6 +4,7 @@ import com.sh.Direction;
 import com.sh.Player;
 import com.sh.RoadSegment;
 import com.sh.SegmentType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -44,6 +45,17 @@ public record RoadSegment2D(
   @Override
   public boolean isPassBy(Direction side) {
     return connectedSides.contains(side);
+  }
+
+  @Override
+  public @NotNull RoadSegment rotate(int times) {
+    return new RoadSegment2D(
+        type,
+        socket,
+        connectedSides.stream()
+            .map(s -> s.rotate(times))
+            .collect(Collectors.toUnmodifiableSet())
+    );
   }
 
   @Override

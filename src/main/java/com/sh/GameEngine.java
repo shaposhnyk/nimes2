@@ -25,14 +25,4 @@ public interface GameEngine {
    * @return current statistics
    */
   Map<Player, PlayerStats> stats();
-
-  /**
-   * @return new random tile
-   */
-  @NotNull TileNode generate();
-
-  /**
-   * @return new tile corresponding to the given one rotated n time clockwise
-   */
-  @NotNull TileNode rotate(@NotNull TileNode tileNode, int n);
 }

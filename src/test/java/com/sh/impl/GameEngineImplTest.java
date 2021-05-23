@@ -14,7 +14,7 @@ public class GameEngineImplTest {
   static final Player B = new ColorPlayer("BLUE");
 
   final Landscape<List<GNode<TileRoadSegment>>> landscape = new Landscape2D<>();
-  final GameEngineImpl ge = new GameEngineImpl(null, landscape, List.of(R, B));
+  final GameEngineImpl ge = new GameEngineImpl(landscape, List.of(R, B));
 
   @Test
   public void testLoopAdd() {
@@ -29,6 +29,24 @@ public class GameEngineImplTest {
     assertThat(ge.stats().get(R))
         .extracting(PlayerStats::totalClaimed)
         .isEqualTo(1);
+  }
+
+  @Test
+  public void testDelegates() {
+    addTiles(1, tile(B, S, E), tile(B, W, S));
+    addTiles(0, tile(R, N, E));
+
+    assertThat(ge.availableMoves()).hasSize(7);
+
+    ge.putTile(p(1, 0), tile("+"));
+    assertThat(ge.field()).hasSize(4);
+    assertThat(ge.availableMoves()).hasSize(8);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testContinuousMap() {
+    addTiles(0, tile(R, N, E));
+    ge.putTile(p(10, 0), tile("+"));
   }
 
   @Test
