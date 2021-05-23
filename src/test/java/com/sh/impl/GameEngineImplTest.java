@@ -29,7 +29,21 @@ public class GameEngineImplTest {
     assertThat(ge.stats().get(R))
         .extracting(PlayerStats::totalClaimed)
         .isEqualTo(1);
+  }
 
+  @Test
+  public void testCityLoop() {
+    addTiles(1, tile("+"), tile("+"));
+    addTiles(0, tile("+"));
+
+    ge.putTile(p(1, 0), tile(B, W, N));
+    assertThat(ge.stats().get(B))
+        .extracting(PlayerStats::totalClaimed)
+        .isEqualTo(1);
+
+    assertThat(ge.stats().get(R))
+        .extracting(PlayerStats::totalClaimed)
+        .isEqualTo(0);
   }
 
   @Test
@@ -45,7 +59,6 @@ public class GameEngineImplTest {
     assertThat(ge.stats().get(R))
         .extracting(PlayerStats::totalClaimed)
         .isEqualTo(1);
-
   }
 
   private void putTiles(int y, TileNode... tiles) {
