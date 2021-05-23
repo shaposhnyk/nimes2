@@ -9,4 +9,9 @@ public record TileNodeImpl(List<RoadSegment> roads) implements TileNode {
   TileNodeImpl(RoadSegment... roads) {
     this(List.of(roads));
   }
+
+  @Override
+  public String toString() {
+    return "T" + roads;
+  }
 }

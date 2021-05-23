@@ -5,7 +5,11 @@ import com.sh.Player;
 import com.sh.RoadSegment;
 import com.sh.SegmentType;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.sh.impl.Direction2D.*;
 
@@ -15,35 +19,42 @@ public record RoadSegmentImpl(
     Set<Direction> connectedSides
 ) implements RoadSegment {
 
+  private static final Map<String, Set<Direction>> map = Map.of(
+      "|.", Set.of(N, S),
+      "-.", Set.of(W, E),
+      "/.", Set.of(W, N),
+      "./", Set.of(S, E),
+      "\\.", Set.of(W, S),
+      ".\\", Set.of(N, E),
+      "+.", Set.of(N, E, S, W)
+  );
+
+  public static RoadSegmentImplBuilder builderOf(String glyph) {
+    Set<Direction> dirs = Objects.requireNonNull(map.get(glyph.length() == 1 ? glyph + "." : glyph), () -> "Unknown glyph: '" + glyph + "'");
+    return new RoadSegmentImplBuilder().setConnectedSides(dirs);
+  }
+
+  public static RoadSegmentImplBuilder builderOf(Direction... dirs) {
+    return new RoadSegmentImplBuilder().setConnectedSides(Set.copyOf(Arrays.asList(dirs)));
+  }
+
+  private static final Map<Set<Direction>, String> invMap = map.entrySet().stream()
+      .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+
   @Override
   public boolean isPassBy(Direction side) {
     return connectedSides.contains(side);
   }
 
-  public static RoadSegmentImplBuilder eastSouth() {
-    return new RoadSegmentImplBuilder().setConnectedSides(Set.of(E, S));
-  }
-
-  public static RoadSegmentImplBuilder westEast() {
-    return new RoadSegmentImplBuilder().setConnectedSides(Set.of(W, E));
-  }
-
-  public static RoadSegmentImplBuilder northSouth() {
-    return new RoadSegmentImplBuilder().setConnectedSides(Set.of(N, S));
-  }
-
-  public static RoadSegmentImplBuilder westNorth() {
-    return new RoadSegmentImplBuilder().setConnectedSides(Set.of(W, N));
-  }
-
-  public static RoadSegmentImplBuilder northEast() {
-    return new RoadSegmentImplBuilder().setConnectedSides(Set.of(N, E));
+  @Override
+  public String toString() {
+    String sides = invMap.containsKey(connectedSides) ? invMap.get(connectedSides) : connectedSides.toString();
+    return SimpleSegmentType.CITY.equals(type) ? "[" + sides + "]" : "{" + sides + "}";
   }
 
   public static RoadSegment cross() {
-    return new RoadSegmentImplBuilder()
+    return builderOf("+")
         .setType(SimpleSegmentType.CITY)
-        .setConnectedSides(Set.of(E, W, N, S))
         .build();
   }
 }

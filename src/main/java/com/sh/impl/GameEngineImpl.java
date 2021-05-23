@@ -2,6 +2,8 @@ package com.sh.impl;
 
 import com.sh.*;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,9 +15,9 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 public class GameEngineImpl implements GameEngine {
+  private static final Logger logger = LoggerFactory.getLogger(GameEngineImpl.class);
   private final TileGenerator generator;
   private final Landscape<List<GNode<TileRoadSegment>>> landscape;
-  private final RoadVisitor<TileRoadSegment> roadVisitor = new RoadVisitor<>(this::closeRoadSegment, this::isCity);
   private final Map<Point, TileNode> tiles;
   private final Map<Player, PlayerStatsImpl> playerStats;
 
@@ -53,6 +55,13 @@ public class GameEngineImpl implements GameEngine {
 
   @Override
   public void putTile(Point p, TileNode newTile) {
+    var newNodes = addTile(p, newTile);
+    var roadVisitor = new RoadVisitor<>(this::closeRoadSegment, this::isCity);
+    newNodes.forEach(roadVisitor::visitRoadsFrom);
+  }
+
+  public List<GNode<TileRoadSegment>> addTile(Point p, TileNode newTile) {
+    logger.info("Adding tile at {}: {}", p, newTile);
     tiles.put(p, newTile);
     var newNodes = createGraphNodes(newTile);
     landscape.add(p, newNodes);
@@ -65,7 +74,7 @@ public class GameEngineImpl implements GameEngine {
       }
     }
 
-    newNodes.forEach(roadVisitor::visitRoadsFrom);
+    return newNodes;
   }
 
   @Override
@@ -107,5 +116,12 @@ public class GameEngineImpl implements GameEngine {
         }
       }
     }
+  }
+
+  @Override
+  public String toString() {
+    return "GameEngineImpl{" +
+        "landscape=" + landscape +
+        '}';
   }
 }
