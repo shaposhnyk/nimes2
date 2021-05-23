@@ -107,12 +107,14 @@ public class GameEngineImpl implements GameEngine {
 
   private void connectGraphNodes(Point p, Direction pSide, Point n) {
     for (GNode<TileRoadSegment> node : landscape.get(p)) {
-      if (node.value().segment().isPassBy(pSide)) {
-        for (GNode<TileRoadSegment> neighborNode : landscape.get(n)) {
-          Direction nSide = landscape.opposite(pSide);
-          if (neighborNode.value().segment().isPassBy(nSide)) {
-            node.addMutually(neighborNode);
-          }
+      if (!node.value().segment().isPassBy(pSide)) {
+        continue;
+      }
+      
+      for (GNode<TileRoadSegment> neighborNode : landscape.get(n)) {
+        Direction nSide = landscape.opposite(pSide);
+        if (neighborNode.value().segment().isPassBy(nSide)) {
+          node.addMutually(neighborNode);
         }
       }
     }

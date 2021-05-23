@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import static com.sh.impl.Direction2D.*;
 
-public record RoadSegmentImpl(
+public record RoadSegment2D(
     SegmentType type,
     Player socket,
     Set<Direction> connectedSides
@@ -29,13 +29,13 @@ public record RoadSegmentImpl(
       "+.", Set.of(N, E, S, W)
   );
 
-  public static RoadSegmentImplBuilder builderOf(String glyph) {
+  public static RoadSegment2DBuilder builderOf(String glyph) {
     Set<Direction> dirs = Objects.requireNonNull(map.get(glyph.length() == 1 ? glyph + "." : glyph), () -> "Unknown glyph: '" + glyph + "'");
-    return new RoadSegmentImplBuilder().setConnectedSides(dirs);
+    return new RoadSegment2DBuilder().setConnectedSides(dirs);
   }
 
-  public static RoadSegmentImplBuilder builderOf(Direction... dirs) {
-    return new RoadSegmentImplBuilder().setConnectedSides(Set.copyOf(Arrays.asList(dirs)));
+  public static RoadSegment2DBuilder builderOf(Direction... dirs) {
+    return new RoadSegment2DBuilder().setConnectedSides(Set.copyOf(Arrays.asList(dirs)));
   }
 
   private static final Map<Set<Direction>, String> invMap = map.entrySet().stream()

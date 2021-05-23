@@ -62,14 +62,14 @@ public class GameEngineImplTest extends TestCase {
   }
 
   private TileNode tile(Player p, Direction... sides) {
-    return new TileNodeImpl(RoadSegmentImpl.builderOf(sides).setSocket(p).build());
+    return new TileNodeImpl(RoadSegment2D.builderOf(sides).setSocket(p).build());
   }
 
   private TileNode tile(Player p, String s) {
-    return new TileNodeImpl(RoadSegmentImpl.builderOf(s).setSocket(p).build());
+    return new TileNodeImpl(RoadSegment2D.builderOf(s).setSocket(p).build());
   }
 
   private TileNode tile(String s) {
-    return new TileNodeImpl(RoadSegmentImpl.builderOf(s).setType(SimpleSegmentType.CITY).build());
+    return new TileNodeImpl(RoadSegment2D.builderOf(s).setType(SimpleSegmentType.CITY).build());
   }
 }

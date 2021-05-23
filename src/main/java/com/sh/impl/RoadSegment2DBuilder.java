@@ -8,28 +8,28 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class RoadSegmentImplBuilder {
+public class RoadSegment2DBuilder {
   private SegmentType type = SimpleSegmentType.FIELD;
   private Player socket;
   private Set<Direction> connectedSides = new HashSet<>();
 
-  public RoadSegmentImplBuilder setType(SegmentType type) {
+  public RoadSegment2DBuilder setType(SegmentType type) {
     this.type = type;
     return this;
   }
 
-  public RoadSegmentImplBuilder setSocket(Player socket) {
+  public RoadSegment2DBuilder setSocket(Player socket) {
     this.socket = socket;
     return this;
   }
 
-  public RoadSegmentImplBuilder setConnectedSides(Set<Direction> connectedSides) {
+  public RoadSegment2DBuilder setConnectedSides(Set<Direction> connectedSides) {
     this.connectedSides = connectedSides;
     return this;
   }
 
-  public RoadSegmentImpl build() {
+  public RoadSegment2D build() {
     Objects.requireNonNull(type);
-    return new RoadSegmentImpl(type, socket, Set.copyOf(connectedSides));
+    return new RoadSegment2D(type, socket, Set.copyOf(connectedSides));
   }
 }
